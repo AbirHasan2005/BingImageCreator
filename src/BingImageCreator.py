@@ -360,6 +360,8 @@ class ImageGenAsync:
         Saves images to output directory
         """
 
+        file_paths = []
+
         if self.debug_file:
             self.debug(download_message)
         if not self.quiet:
@@ -379,15 +381,18 @@ class ImageGenAsync:
                 if response.status_code != 200:
                     raise Exception("Could not download image")
                 # save response to file
+                file_path = os.path.join(output_dir, f"{fn}{jpeg_index}.jpeg")
                 with open(
-                    os.path.join(output_dir, f"{fn}{jpeg_index}.jpeg"), "wb"
+                    file_path, "wb"
                 ) as output_file:
                     output_file.write(response.content)
+                    file_paths.append(file_path)
                 jpeg_index += 1
         except httpx.InvalidURL as url_exception:
             raise Exception(
                 "Inappropriate contents found in the generated images. Please try again or try another prompt.",
             ) from url_exception
+        return file_paths
 
 
 async def async_image_gen(
